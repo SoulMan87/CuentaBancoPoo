@@ -3,5 +3,5 @@ Creación de una cuenta de banco con el lenguaje de programación Java con POO (
 
 Estructura del Proyecto 
 
-https://raw.githubusercontent.com/Soulman87/CuentaBancoPoo/master/Assets/estructura.jpg
+(https://raw.githubusercontent.com/Soulman87/CuentaBancoPoo/master/Assets/estructura.jpg)
 
