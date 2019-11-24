@@ -3,5 +3,5 @@ Creación de una cuenta de banco con el lenguaje de programación Java con POO (
 
 Estructura del Proyecto 
 
-![](Assets/estructura.jpg)
+¡[](Assets/estructura.jpg)
 
