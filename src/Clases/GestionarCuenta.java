@@ -1,113 +1,112 @@
 package Clases;
 
+import javax.swing.*;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
+import java.util.Optional;
 
 public class GestionarCuenta {
-
     ArrayList<Cuenta> lista;
-
     public void iniciar() {
-        lista = new ArrayList();
-        String menu = "Seleciona una opción";
-        menu += "\n " + "1: Resgistrar cuenta.";
-        menu += "\n " + "2: Consignar cuenta.";
-        menu += "\n " + "3: Retirar de la cuenta.";
-        menu += "\n " + "4: Mostrar cuenta.";
-        menu += "\n " + "5: Salir.";
+        lista = new ArrayList<> ();
         int op;
-        do {
-            op = Integer.parseInt(JOptionPane.showInputDialog(menu));
+        while (true) {
+            String menu = "Selecciona una opción" +
+                    "\n 1: Registrar cuenta." +
+                    "\n 2: Consignar cuenta." +
+                    "\n 3: Retirar de la cuenta." +
+                    "\n 4: Mostrar cuenta." +
+                    "\n 5: Salir.";
+            op = Integer.parseInt (JOptionPane.showInputDialog (menu));
             switch (op) {
                 case 1:
-                    registrarCuenta();
+                    registrarCuenta ();
                     break;
                 case 2:
-                    consignarCuenta();
+                    consignarCuenta ();
                     break;
                 case 3:
-                    retirarCuenta();
+                    retirarCuenta ();
                     break;
                 case 4:
-                    mostrarCuenta();
+                    mostrarCuenta ();
                     break;
                 case 5:
-                    System.exit(0);
+                    System.exit (0);
             }
-        } while (true);
-
+        }
     }
 
     private void registrarCuenta() {
-        int codigo = ingresar("Ingrese el número de la cuenta");
-        int titular = ingresar("Ingrese el documento del titular");
-        double saldo = (double) ingresar("Ingrese el saldo");
-        int retiros = ingresar("Ingresar la cantidad de retiros");
+        int codigo = ingresar ("Ingrese el número de la cuenta");
+        int titular = ingresar ("Ingrese el documento del titular");
+        double saldo = ingresar ("Ingrese el saldo");
+        int retiros = ingresar ("Ingresar la cantidad de retiros");
         Cuenta cuenta;
         if (retiros == 0) {
-            cuenta = new Cuenta();
-            cuenta.setCodigo(codigo);
-            cuenta.setTitular(titular);
-            cuenta.setSaldo(saldo);
+            cuenta = new Cuenta ();
+            cuenta.setCodigo (codigo);
+            cuenta.setTitular (titular);
+            cuenta.setSaldo (saldo);
         } else if (retiros >= 1 && retiros <= 4) {
-            cuenta = new Cuenta(codigo, titular, saldo, retiros);
+            cuenta = new Cuenta (codigo, titular, saldo, retiros);
         } else {
-            cuenta = new Cuenta(codigo, titular, new int[retiros], saldo);
+            cuenta = new Cuenta (codigo, titular, new int[retiros], saldo);
         }
-        lista.add(cuenta);
+
+        lista.add (cuenta);
         mostrar("Cuenta registrada exitosamente");
     }
 
     public void consignarCuenta() {
-        if (lista.isEmpty()) {
-            mostrar("Lista vacia");
-        } else {
-            int codigo = ingresar("Ingrese el número de la cuenta");
-            Cuenta cuenta2 = validar(codigo);
-            if (cuenta2 == null) {
-                mostrar("No se encontró la cuenta");
-            } else {
-                boolean respuesta = cuenta2.consignar(ingresar("Ingrese el valor a consignar"));
-                String mensaje = (respuesta == true) ? "Consignación exitosa" : "Error. Valor incorrecto";
-                mostrar(mensaje);
-            }
-        }
+        lista.stream ()
+                .findAny ()
+                .ifPresent (
+                        cuenta -> {
+                            int codigo = ingresar ("Ingrese el número de la cuenta");
+                            Optional<Cuenta> cuenta1 = Optional.ofNullable (validar (codigo));
+                            if (cuenta1.isPresent ()) {
+                                boolean respuesta = cuenta1.get ()
+                                        .consignar (ingresar ("Ingrese el valor a consignar"));
+                                String mensaje = respuesta ? "Consignación exitosa" : "Error. Valor incorrecto";
+                                mostrar (mensaje);
+                            } else {
+                                mostrar ("No se encontró la cuenta");
+                            }
+                        }
+                );
     }
 
     public void retirarCuenta() {
         int codigo = ingresar("Ingrese el número de la cuenta");
-        Cuenta cuenta3 = validar(codigo);
-        if (cuenta3 == null) {
-            mostrar("La cuenta no existe");
-        } else {
-            int valor = ingresar("Ingrese el valor a retirar");
-            String respuesta = cuenta3.retirar(valor);
-            mostrar(respuesta);
-        }
+        Optional<Cuenta> optionalCuenta = Optional.ofNullable (validar (codigo));
+        optionalCuenta.ifPresentOrElse (
+                cuenta -> {
+                    int valor = ingresar ("Ingrese el valor a retirar");
+                    String respuesta = cuenta.retirar (valor);
+                    mostrar (respuesta);
+                },
+                () -> mostrar ("La cuenta no existe")
+        );
     }
 
     public void mostrarCuenta() {
         int codigo = ingresar("Ingrese el número de la cuenta");
-        Cuenta cuenta4 = validar(codigo);
-        if (cuenta4 == null) {
-            mostrar("La cuenta no existe");
-        } else {
-            mostrar(cuenta4.listarInformacion());
-        }
+        Optional<Cuenta> optionalCuenta = Optional.ofNullable (validar (codigo));
+        optionalCuenta.ifPresentOrElse (
+                cuenta -> mostrar (cuenta.listarInformacion ()),
+                () -> mostrar ("La cuenta no existe")
+        );
     }
 
     public Cuenta validar(int cod) {
-        for (Cuenta lista1 : lista) {
-            if (lista1.getCodigo() == cod) {
-                return lista1;
-            }
-        }
-        return null;
+        return lista.stream ()
+                .filter (cuenta -> cuenta.getCodigo () == cod)
+                .findFirst ()
+                .orElse (null);
     }
 
     private int ingresar(String mensaje) {
-        int datos = Integer.parseInt(JOptionPane.showInputDialog(mensaje));
-        return datos;
+        return Integer.parseInt (JOptionPane.showInputDialog (mensaje));
     }
     
     private void mostrar(String mensaje){

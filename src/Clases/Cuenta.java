@@ -1,10 +1,13 @@
 package Clases;
 
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 public class Cuenta {
 
     private int codigo;
     private int titular;
-    private int retiros[];
+    private final int[] retiros;
     private double saldo;
 
     public Cuenta() {
@@ -33,24 +36,8 @@ public class Cuenta {
         this.codigo = codigo;
     }
 
-    public int getTitular() {
-        return titular;
-    }
-
     public void setTitular(int titular) {
         this.titular = titular;
-    }
-
-    public int[] getRetiros() {
-        return retiros;
-    }
-
-    public void setRetiros(int[] retiros) {
-        this.retiros = retiros;
-    }
-
-    public double getSaldo() {
-        return saldo;
     }
 
     public void setSaldo(double saldo) {
@@ -73,12 +60,10 @@ public class Cuenta {
             return "Error. Valor cero";
         } else if (saldo >= valor) {
             saldo -= valor;
-            for (int i = 0; i < retiros.length; i++) {
-                if (retiros[i] == 0) {
-                    retiros[i] = valor;
-                    break;
-                }
-            }
+            IntStream.range (0, retiros.length)
+                    .filter (i -> retiros[i] == 0)
+                    .findFirst ()
+                    .ifPresent (i -> retiros[i] = valor);
             return "Retiro exitoso";
         } else {
             return "Su saldo es: " + saldo;
@@ -86,38 +71,27 @@ public class Cuenta {
     }
 
     private int retirosDisponibles() {
-        int cont = 0;
-        for (int valor : retiros) {
-            if (valor != 0) {
-                cont++;
-            } else {
-                break;
-            }
-        }
+
+        int cont = IntStream.range (0, retiros.length)
+                .filter (i -> retiros[i] == 0)
+                .findFirst ()
+                .orElse (retiros.length);
         return (retiros.length - cont);
     }
 
     public String listarInformacion() {
-        String datos = "Información cuenta";
-        datos += "Número: " + codigo + "\n";
-        datos += "Titular: " + titular + "\n";
-        datos += "Saldo: " + saldo + "\n";
-        datos += "Retiros: " + obtenerRetiros() + "\n";
-        datos += "Retiros Disponibles: " + retirosDisponibles() + "\n";
-        return datos;
-
+        return String.format ("Información cuenta\nNúmero: %d\nTitular: %d\nSaldo: %s\nRetiros:" +
+                " %s\nRetiros Disponibles: " +
+                "%d\n", codigo, titular, saldo, obtenerRetiros (), retirosDisponibles ());
     }
 
     private String obtenerRetiros() {
-        String valores = "";
-        for (int val : retiros) {
-            if (val != 0) {
-                valores += val + " ";
-            } else {
-                break;
-            }
-        }
-        return valores;
+
+        return Arrays.stream (retiros)
+                .filter (val -> val != 0)
+                .mapToObj (String::valueOf)
+                .reduce ((val1, val2) -> val1 + " " + val2)
+                .orElse ("");
     }
 
 }
