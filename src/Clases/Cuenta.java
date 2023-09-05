@@ -45,12 +45,7 @@ public class Cuenta {
     }
 
     public boolean consignar(int valor) {
-        if (valor > 0) {
-            saldo += valor;
-            return true;
-        } else {
-            return false;
-        }
+        return valor > 0 && (saldo = Math.addExact ((int) saldo, valor)) >= 0;
     }
 
     public String retirar(int valor) {
